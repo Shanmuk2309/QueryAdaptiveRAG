@@ -13,7 +13,7 @@ from query_adaptive_rag.retrieval.dense import DenseRetriever, SearchHit, Search
 
 
 class TinyTokenizer:
-    def __call__(self, text, add_special_tokens=False, return_offsets_mapping=False):
+    def __call__(self, text, add_special_tokens=False, return_offsets_mapping=False, verbose=True):
         matches = list(re.finditer(r"\S+", text))
         result = {"input_ids": list(range(len(matches)))}
         if return_offsets_mapping:

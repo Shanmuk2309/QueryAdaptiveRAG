@@ -8,12 +8,37 @@ from query_adaptive_rag.chunking.text_utils import count_tokens, segment_sentenc
 
 class TinyTokenizer:
     """Whitespace tokenizer with Hugging Face-style offsets for deterministic tests."""
-    def __call__(self, text, add_special_tokens=False, return_offsets_mapping=False):
+    def __call__(self, text, add_special_tokens=False, return_offsets_mapping=False, verbose=True):
         matches = list(__import__("re").finditer(r"\S+", text))
         result = {"input_ids": list(range(len(matches)))}
         if return_offsets_mapping:
             result["offset_mapping"] = [(m.start(), m.end()) for m in matches]
         return result
+
+
+def test_count_tokens_counts_long_context_without_length_warning_or_truncation():
+    import warnings
+
+    class LongInputTokenizer:
+        def __init__(self):
+            self.received_text = None
+
+        def __call__(self, text, add_special_tokens=True, verbose=True):
+            self.received_text = text
+            if verbose:
+                warnings.warn("Token indices sequence length is longer than the specified maximum")
+            return {"input_ids": list(range(len(text.split())))}
+
+    tokenizer = LongInputTokenizer()
+    context = " ".join(f"token{i}" for i in range(638))
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        token_count = count_tokens(context, tokenizer)
+
+    assert token_count == 638
+    assert tokenizer.received_text == context
+    assert not caught
 
 
 class FakeModel:

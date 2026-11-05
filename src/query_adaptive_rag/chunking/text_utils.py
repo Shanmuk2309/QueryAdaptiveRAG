@@ -21,7 +21,7 @@ class Sentence:
 
 def count_tokens(text: str, tokenizer: OffsetTokenizer) -> int:
     """Count tokens using a Hugging Face fast tokenizer."""
-    return len(tokenizer(text, add_special_tokens=False)["input_ids"])
+    return len(tokenizer(text, add_special_tokens=False, verbose=False)["input_ids"])
 
 
 def segment_sentences(text: str) -> list[Sentence]:

@@ -10,7 +10,7 @@ from query_adaptive_rag.config import load_config
 class TinyTokenizer:
     is_fast = True
 
-    def __call__(self, text, add_special_tokens=False, return_offsets_mapping=False):
+    def __call__(self, text, add_special_tokens=False, return_offsets_mapping=False, verbose=True):
         import re
 
         matches = list(re.finditer(r"\S+", text))
