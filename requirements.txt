@@ -1,0 +1,13 @@
+# Compatible, reproducible stack for 64-bit CPython 3.11 on Windows.
+# Keep PyArrow on a NumPy 1.x-compatible release for this pinned CPU stack.
+numpy==1.26.4
+pyarrow==18.1.0
+pandas==2.2.3
+pytz==2025.2
+scikit-learn==1.6.1
+PyYAML==6.0.3
+datasets==3.6.0
+sentence-transformers==4.1.0
+transformers==4.57.6
+faiss-cpu==1.11.0.post1
+pytest==8.4.2

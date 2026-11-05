@@ -1,0 +1,22 @@
+seed: 42
+model_name: sentence-transformers/all-MiniLM-L6-v2
+device: cpu
+tokenizer_name: sentence-transformers/all-MiniLM-L6-v2
+semantic_similarity_threshold: 0.45
+semantic_min_tokens: 80
+semantic_max_tokens: 400
+fixed_chunk_sizes: [256, 512]
+fixed_overlap_tokens: 32
+datasets:
+  squad:
+    name: rajpurkar/squad
+    config: null
+    split: validation
+    limit: 200
+  hotpotqa:
+    name: hotpot_qa
+    config: distractor
+    split: validation
+    limit: 200
+output_dir: data/processed/day1
+cache_dir: data/cache
