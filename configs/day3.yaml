@@ -1,0 +1,39 @@
+seed: 42
+model_name: sentence-transformers/all-MiniLM-L6-v2
+tokenizer_name: sentence-transformers/all-MiniLM-L6-v2
+device: cpu
+embedding_max_sequence_length: 512
+dataset_source_split: validation
+candidate_pool_size_per_dataset: 250
+development_size_per_dataset: 50
+evaluation_size_per_dataset: 200
+top_k: 5
+token_budget: 3072
+fixed_overlap_tokens: 32
+semantic_similarity_threshold: 0.45
+semantic_min_tokens: 80
+semantic_max_tokens: 400
+minimum_neighbor_similarity: 0.20
+bootstrap_repeats: 1000
+expansion_rules:
+  single_fact:
+    max_depth: 0
+    max_expansions: 0
+  multi_concept:
+    max_depth: 1
+    max_expansions: 2
+  multi_hop:
+    max_depth: 2
+    max_expansions: 4
+datasets:
+  squad:
+    dataset_name: rajpurkar/squad
+    split: validation
+  hotpotqa:
+    dataset_name: hotpot_qa
+    dataset_config: distractor
+    split: validation
+day1_smoke_input_dir: data/processed/day1
+processed_output_dir: data/processed/day3
+results_output_dir: results/day3
+embedding_cache_dir: data/cache/sentence_embeddings

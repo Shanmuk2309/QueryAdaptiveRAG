@@ -103,6 +103,12 @@ For answer faithfulness, use the same frozen generator and prompt across arms if
 - Write results, limitations, discussion, and conclusion strictly from measured outcomes; add citations and verify them.
 - Run the full test suite, capture one optional Streamlit demo, clean the repository, and ensure configs, sample IDs, CSVs, and commands reproduce the reported experiment.
 
+### Day 3 implementation status
+
+- Implemented a separate comparative evaluation runner for M1 fixed 256, M2 fixed 512, M3 semantic, and M4 complexity-aware semantic expansion. M4 reuses M3's exact seed chunks and ranked retrieval list; all methods share the model, tokenizer limit, top-k, and context-token budget.
+- Evaluated a reproducible held-out subset of 200 SQuAD and 200 HotpotQA questions after reserving 50 development examples per dataset. Evidence annotations are read only by metric computation, after query classification and retrieval.
+- Added per-query CSV/JSONL, aggregate metrics, paired M3/M4 bootstrap intervals, a run manifest, plots, evaluation tests, and `DAY3_REPORT.md`. The report documents the measured outputs and remaining tokenizer-length limitation; it does not claim final research conclusions.
+
 ## 8. Literature anchors
 
 - Hearst, *TextTiling: Segmenting Text into Multi-paragraph Subtopic Passages* (1997), a foundational topic segmentation method: [ACL Anthology](https://aclanthology.org/J97-1003/).
