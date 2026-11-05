@@ -13,8 +13,9 @@ src/query_adaptive_rag/
   config.py             # seeds, paths, thresholds, budgets, model names
   data/                  # load, normalize, split, and validate examples
   chunking/              # fixed_size.py, semantic.py
-  retrieval/             # embeddings.py, index.py, metrics.py
-  expansion/             # complexity.py, context_expander.py
+  retrieval/             # dense.py: embeddings, FAISS index, and top-k search
+  classification/        # complexity.py: query-only complexity features/rules
+  expansion/             # context_expander.py: budgeted semantic neighbors
   evaluation/            # retrieval, answer, cost, latency measurements
   reporting/             # CSV output and plots
 app.py                   # optional small Streamlit demonstration
@@ -87,6 +88,13 @@ For answer faithfulness, use the same frozen generator and prompt across arms if
 - Add metric code and tests for Recall@K, MRR, context precision, token count, and expansion budget enforcement.
 - Run a small smoke experiment, fix errors, freeze thresholds/configuration, then run the full seeded subset and save per-query CSV plus run manifest.
 - Paper: finalize dataset, methods, and evaluation protocol; create result tables from actual CSV only.
+
+### Day 2 implementation status
+
+- Implemented CPU FAISS inner-product retrieval over normalized `all-MiniLM-L6-v2` vectors, stable chunk/document IDs, deterministic tie ordering, top-k scores, and query-time latency.
+- Added a query-only complexity classifier with inspectable entity, conjunction, comparison, and relation features. It does not accept or inspect answers, evidence annotations, or dataset labels.
+- Added configurable same-document semantic-neighbor expansion, relevance filtering, source-order/overlap-aware rendering, provenance IDs, and explicit hard-budget handling. Baseline and proposed contexts use the same retrieved seeds.
+- Added a Day 2 smoke command/config that consumes Day 1 outputs and writes the FAISS index, row mapping, run manifest, and per-query CSV/JSONL logs. This stage produces no retrieval metrics or paper conclusions; comparative evaluation remains for a later stage.
 
 ### Day 3 — Analysis, reproducibility, and writing
 

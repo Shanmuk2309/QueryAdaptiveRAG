@@ -51,6 +51,17 @@ python -m pytest
 
 Tests use a small deterministic fake tokenizer/model and do not download datasets or model weights.
 
+## Day 2 retrieval and expansion smoke run
+
+With the Day 1 smoke outputs present, run:
+
+```powershell
+$env:PYTHONPATH = "$PWD\src"
+python -m query_adaptive_rag.day2_pipeline --config configs/day2_smoke.yaml
+```
+
+This builds a CPU FAISS index over the Day 1 semantic chunks, runs dense top-k retrieval for each normalized question, classifies question text with deterministic query-only rules, and writes paired semantic-baseline/adaptive context rows under `results/day2/`. The index and chunk-row mapping go under `data/processed/day2/`. The configured context budget is enforced for both methods; an over-budget seed set raises an explicit error. This is an integration smoke pipeline, not a comparative evaluation.
+
 ## Reproducibility and scope
 
 The configuration seeds Python and NumPy and deterministically shuffles each selected dataset slice. Record the config and dependency versions with future experiment results. This pipeline only prepares data and chunks; retrieval indexing, adaptive context expansion, answer generation, and evaluation are later project stages.

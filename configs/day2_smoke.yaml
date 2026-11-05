@@ -1,0 +1,20 @@
+seed: 42
+model_name: sentence-transformers/all-MiniLM-L6-v2
+tokenizer_name: sentence-transformers/all-MiniLM-L6-v2
+device: cpu
+day1_input_dir: data/processed/day1
+processed_output_dir: data/processed/day2
+results_output_dir: results/day2
+top_k: 5
+token_budget: 2048
+minimum_neighbor_similarity: 0.20
+expansion_rules:
+  single_fact:
+    max_depth: 0
+    max_expansions: 0
+  multi_concept:
+    max_depth: 1
+    max_expansions: 2
+  multi_hop:
+    max_depth: 2
+    max_expansions: 4
