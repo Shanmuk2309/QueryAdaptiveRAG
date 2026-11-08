@@ -62,6 +62,28 @@ python -m query_adaptive_rag.day2_pipeline --config configs/day2_smoke.yaml
 
 This builds a CPU FAISS index over the Day 1 semantic chunks, runs dense top-k retrieval for each normalized question, classifies question text with deterministic query-only rules, and writes paired semantic-baseline/adaptive context rows under `results/day2/`. The index and chunk-row mapping go under `data/processed/day2/`. The configured context budget is enforced for both methods; an over-budget seed set raises an explicit error. This is an integration smoke pipeline, not a comparative evaluation.
 
+## M4-v3 development comparison
+
+The existing M4-v3 development run reuses the exact M3 retrieval response and has its own historical output directory. It does not use answer/evidence labels during selection.
+
+```powershell
+$env:PYTHONPATH = "$PWD\src"
+python -m query_adaptive_rag.evaluation.day3_dev_m4v3 --config configs/day3_dev_m4v3.yaml
+```
+
+The configuration targets the existing 50 SQuAD + 50 HotpotQA development split and uses new isolated output paths under `data/processed/day3_dev_m4v3/` and `results/day3_dev_m4v3/`. Per-candidate decision reasons are written to `candidate_decisions.jsonl`. The command is a development run; it does not evaluate the held-out queries.
+
+### M4-v3 query-focused fact expansion
+
+The stricter fact-based implementation has a separate configuration and output directory. It accepts a neighbor only when explicit facts add an uncovered query relation or complete a supported fact chain; it has no corroboration-only acceptance path. To run it later:
+
+```powershell
+$env:PYTHONPATH = "$PWD\src"
+python -m query_adaptive_rag.evaluation.day3_dev_m4v3 --config configs/day3_dev_m4v3_fact.yaml
+```
+
+Outputs go under `data/processed/day3_dev_m4v3_fact/` and `results/day3_dev_m4v3_fact/`; this implementation task does not run that evaluation.
+
 ## Reproducibility and scope
 
 The configuration seeds Python and NumPy and deterministically shuffles each selected dataset slice. Record the config and dependency versions with future experiment results. This pipeline only prepares data and chunks; retrieval indexing, adaptive context expansion, answer generation, and evaluation are later project stages.

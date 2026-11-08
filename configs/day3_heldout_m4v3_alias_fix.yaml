@@ -1,0 +1,68 @@
+# Frozen six-method held-out protocol; requires the isolated six-method runner.
+run_id: day3_heldout_m4v3_alias_fix_20261106
+protocol_version: encoder_safe_m2_v2_m4v3_alias_fix
+seed: 42
+model_name: sentence-transformers/all-MiniLM-L6-v2
+tokenizer_name: sentence-transformers/all-MiniLM-L6-v2
+device: cpu
+embedding_max_sequence_length: 512
+encoder_safe_m2: true
+dataset_source_split: validation
+candidate_pool_size_per_dataset: 250
+development_size_per_dataset: 50
+evaluation_size_per_dataset: 200
+top_k: 5
+token_budget: 3072
+fixed_overlap_tokens: 32
+semantic_similarity_threshold: 0.45
+semantic_min_tokens: 80
+semantic_max_tokens: 400
+minimum_neighbor_similarity: 0.20
+bootstrap_repeats: 1000
+expansion_rules:
+  single_fact:
+    max_depth: 0
+    max_expansions: 0
+  multi_concept:
+    max_depth: 1
+    max_expansions: 2
+  multi_hop:
+    max_depth: 2
+    max_expansions: 4
+methods:
+  - M1_fixed_256
+  - M2_fixed_510
+  - M3_semantic
+  - M4_adaptive
+  - M4_v2_redundancy
+  - M4_v3_fact_alias_fix
+m4_v2:
+  redundancy_threshold: 0.85
+m4_v3:
+  min_query_similarity: 0.20
+  min_incremental_gain: 0.01
+  corroboration_similarity: 0.35
+  near_duplicate_3gram_containment: 0.85
+  semantic_redundancy_warning: 0.85
+  max_corroborations_per_facet: 1
+  entity_weight: 2.0
+  relation_weight: 2.0
+  keyword_weight: 1.0
+datasets:
+  squad:
+    dataset_name: rajpurkar/squad
+    split: validation
+  hotpotqa:
+    dataset_name: hotpot_qa
+    dataset_config: distractor
+    split: validation
+reference_manifest: results/day3_corrected/experiment_manifest.json
+original_reference_manifest: results/day3/experiment_manifest.json
+development_reference_manifest: results/day3_dev_m4v3_fact_alias_fix/experiment_manifest.json
+expected_heldout_query_ids_sha256: 762bd07ae47cc0a750046e04c1eb64697875b0643e431cc0af3cee6b5adf8bab
+m4_v2_reference_config: configs/day3_dev_m4v2.yaml
+m4_v3_reference_config: configs/day3_dev_m4v3_fact.yaml
+reuse_semantic_chunks_from: data/processed/day3_corrected
+results_output_dir: results/day3_heldout_m4v3_alias_fix
+processed_output_dir: results/day3_heldout_m4v3_alias_fix/processed
+embedding_cache_dir: results/day3_heldout_m4v3_alias_fix/cache

@@ -1,0 +1,51 @@
+# Isolated rerun using the Gold Center alias correction and exact baseline chunks.
+run_id: day3_dev_m4v3_fact_alias_fix_20261106
+experiment_name: day3_dev_m4v3_fact_alias_fix
+seed: 42
+model_name: sentence-transformers/all-MiniLM-L6-v2
+tokenizer_name: sentence-transformers/all-MiniLM-L6-v2
+device: cpu
+embedding_max_sequence_length: 512
+dataset_source_split: validation
+candidate_pool_size_per_dataset: 250
+development_size_per_dataset: 50
+heldout_size_per_dataset: 200
+top_k: 5
+token_budget: 3072
+semantic_similarity_threshold: 0.45
+semantic_min_tokens: 80
+semantic_max_tokens: 400
+expansion_rules:
+  single_fact:
+    max_depth: 0
+    max_expansions: 0
+  multi_concept:
+    max_depth: 1
+    max_expansions: 2
+  multi_hop:
+    max_depth: 2
+    max_expansions: 4
+m4_v3:
+  min_query_similarity: 0.20
+  min_incremental_gain: 0.01
+  corroboration_similarity: 0.35
+  near_duplicate_3gram_containment: 0.85
+  semantic_redundancy_warning: 0.85
+  max_corroborations_per_facet: 1
+  entity_weight: 2.0
+  relation_weight: 2.0
+  keyword_weight: 1.0
+datasets:
+  squad:
+    dataset_name: rajpurkar/squad
+    split: validation
+  hotpotqa:
+    dataset_name: hotpot_qa
+    dataset_config: distractor
+    split: validation
+reference_manifest: results/day3/experiment_manifest.json
+semantic_chunks_input_path: data/processed/day3_dev_m4v3_fact/M3_semantic_chunks.jsonl
+semantic_chunks_sha256: b212e40081c31bf76f5443ef09ca79e9f69828a3f1ea1764a44e77a674422f8b
+results_output_dir: results/day3_dev_m4v3_fact_alias_fix
+processed_output_dir: results/day3_dev_m4v3_fact_alias_fix/processed
+embedding_cache_dir: results/day3_dev_m4v3_fact_alias_fix/cache
