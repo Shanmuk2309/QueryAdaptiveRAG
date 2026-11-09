@@ -1,8 +1,8 @@
 {
   "run_id": "day3_heldout_10000_m4v3_20261106",
-  "created_at_utc": "2026-11-06T16:50:59.882431+00:00",
+  "created_at_utc": "2026-11-09T06:48:52.318877+00:00",
   "configuration_path": "configs/day3_heldout_10000_m4v3.yaml",
-  "configuration_sha256": "b0c10013c1bf4cfde0dcc467589f17b716d7b56b77914b2ae8729c8b1a07f030",
+  "configuration_sha256": "56fcbe1f57f839172b5fc4c95bc94212685d01735e8741c50b859d4f63fec8d8",
   "split_manifest_path": "data/splits/day3_heldout_10000_m4v3.json",
   "split_manifest_sha256": "b49f2cf432fa09c90520b29f28d7e838011002da2b38213e4905b38e16780556",
   "ordered_dataset_query_ids_sha256": "aa8b2aa8e010d5e843838f69930cb5eb063173d804b668f14bc147dfac38b857",
@@ -78,14 +78,14 @@
       "truncation_risk_chunk_count": 0
     }
   },
-  "full_corpus_chunking_latency_ms": 666593.6004999676,
+  "full_corpus_chunking_latency_ms": 168289.1588000002,
   "sentence_embedding_batch_audit": {
     "sentence_count_with_document_repeats": 225896,
     "unique_sentence_count": 215368,
-    "new_unique_sentences_encoded": 177938,
-    "existing_document_cache_hits": 7946,
+    "new_unique_sentences_encoded": 215368,
+    "existing_document_cache_hits": 0,
     "batch_size": 64,
-    "verified_single_vs_batch_max_abs_difference": 8.66129994392395e-08,
+    "verified_single_vs_batch_max_abs_difference": 1.30385160446167e-07,
     "single_vs_batch_tolerance": {
       "rtol": 0.0001,
       "atol": 1e-05

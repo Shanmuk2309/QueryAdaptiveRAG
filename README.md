@@ -5,7 +5,7 @@ Day 1 provides normalized SQuAD/HotpotQA loading and three chunking outputs for 
 ## Requirements
 
 - Windows 11 and Python 3.10–3.12 (64-bit recommended)
-- CPU only; the pipeline explicitly loads `all-MiniLM-L6-v2` on CPU
+- The pipeline supports CPU and CUDA through each run configuration's `device` value
 - Internet access for the first download of datasets and model weights
 
 ## Setup (PowerShell)
@@ -47,6 +47,28 @@ Each chunk record contains `doc_id`, stable-within-run `chunk_id`, `text`, `toke
 ```powershell
 $env:PYTHONPATH = "$PWD\src"
 python -m pytest
+```
+
+### GPU acceleration for the 10,000-query evaluation
+
+The held-out 10,000-query configuration requests CUDA. The Python environment
+must contain a CUDA-enabled PyTorch build; verify it before starting the run:
+
+```powershell
+.\.venv\Scripts\python.exe -c "import torch; print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CUDA unavailable')"
+```
+
+If this prints `False`, install the CUDA-enabled PyTorch build appropriate for
+the installed NVIDIA driver from the official PyTorch selector. The existing
+CPU-generated preflight artifacts are not reusable after changing the
+configuration, so regenerate them before evaluation:
+
+```powershell
+$env:PYTHONPATH = "$PWD\src"
+Rename-Item data\processed\day3_heldout_10000_m4v3 day3_heldout_10000_m4v3_cpu
+Remove-Item data\cache\day3_heldout_10000_m4v3 -Recurse -Force -ErrorAction SilentlyContinue
+.\.venv\Scripts\python.exe -m query_adaptive_rag.evaluation.day3_heldout_10000_m4v3 --config configs\day3_heldout_10000_m4v3.yaml --preflight-only
+.\.venv\Scripts\python.exe -m query_adaptive_rag.evaluation.day3_heldout_10000_m4v3 --config configs\day3_heldout_10000_m4v3.yaml --run-evaluation
 ```
 
 Tests use a small deterministic fake tokenizer/model and do not download datasets or model weights.

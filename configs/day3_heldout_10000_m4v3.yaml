@@ -4,7 +4,7 @@ protocol_version: encoder_safe_m2_v2_m4v3_alias_fix_10000
 seed: 42
 model_name: sentence-transformers/all-MiniLM-L6-v2
 tokenizer_name: sentence-transformers/all-MiniLM-L6-v2
-device: cpu
+device: cuda
 embedding_max_sequence_length: 512
 encoder_safe_m2: true
 dataset_source_split: validation

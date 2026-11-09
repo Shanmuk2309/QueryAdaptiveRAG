@@ -855,6 +855,8 @@ def run_evaluation(config_path: str | Path, executed_command: str | None = None)
 
     indexes_dir = processed_dir / "indexes"
     embeddings_dir = processed_dir / "embeddings"
+    indexes_dir.mkdir(parents=True, exist_ok=True)
+    embeddings_dir.mkdir(parents=True, exist_ok=True)
     if any(indexes_dir.iterdir()) or any(embeddings_dir.iterdir()):
         raise FileExistsError("refusing to overwrite an existing 10,000-query index or embedding artifact")
     retrieval_dir = processed_dir / "retrievals"
@@ -1039,6 +1041,7 @@ def run_evaluation(config_path: str | Path, executed_command: str | None = None)
         "split_manifest_path": str(root / config["split_manifest"]),
         "split_manifest_sha256": _sha256_file(root / config["split_manifest"]),
         "ordered_dataset_query_ids_sha256": split_hash,
+        "heldout_query_ids_sha256": split_hash,
         "unique_corpus_document_count": preflight_manifest["unique_corpus_document_count"],
         "chunk_counts": dict(preflight_manifest["chunk_counts"]),
         "semantic_chunk_count": preflight_manifest["chunk_counts"][M3],
