@@ -1,0 +1,10 @@
+-r ../requirements.txt
+# FastAPI 0.129.1 changed the generated JSON Schema for uploaded files to
+# contentMediaType, which Swagger UI renders as a text field. Keep native
+# UploadFile OpenAPI output as `type: string, format: binary` until compatible.
+fastapi>=0.115,<0.129.1
+uvicorn[standard]>=0.30,<1
+pydantic>=2.8,<3
+python-multipart>=0.0.9
+pypdf>=5,<7
+httpx>=0.27
