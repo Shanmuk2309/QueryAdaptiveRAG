@@ -16,6 +16,19 @@ The 10,000-query evaluation is configured, but its raw result directory is not c
 - The pipeline supports CPU and CUDA through each run configuration's `device` value
 - Internet access for the first download of datasets and model weights
 
+## React frontend
+
+The responsive React + Vite research workspace lives in `frontend/` and uses the FastAPI backend from `backend/`.
+
+```powershell
+cd frontend
+npm install
+Copy-Item .env.example .env
+npm run dev
+```
+
+The Vite app runs at `http://localhost:3000` and uses `http://127.0.0.1:8001` as its default API URL. Start the backend separately from `backend/`; setup, routes, and feature details are documented in [frontend/README.md](frontend/README.md).
+
 ## Setup (PowerShell)
 
 From the repository root:
