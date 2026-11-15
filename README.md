@@ -1,6 +1,14 @@
 # QueryAdaptiveRAG
 
-Day 1 provides normalized SQuAD/HotpotQA loading and three chunking outputs for the planned four-method study: fixed 256-token, fixed 512-token, and semantic. The proposed query-aware expansion method is not implemented yet. No experimental results are included.
+QueryAdaptiveRAG is a CPU-compatible research implementation for testing query-complexity-aware semantic context expansion in retrieval-augmented generation. It includes dataset preparation, fixed and semantic chunking, dense retrieval, query-only complexity classification, budgeted context expansion, and evidence-based retrieval evaluation.
+
+The implemented complexity-aware expansion variants (M4, M4-v2, and M4-v3) share the M3 semantic retrieval seeds and add neighboring semantic chunks according to query complexity and expansion rules. M4-v3 also considers query facts when deciding whether a candidate adds useful context. All variants enforce a configured context-token budget and log candidate decisions.
+
+## Current evaluation status
+
+The repository contains a six-method held-out evaluation on 400 queries (200 SQuAD and 200 HotpotQA) in `results/day3_heldout_m4v3_alias_fix/`. In that run, M4-v3 had the same Recall@5, MRR, context precision, and mean context-token usage as M3 semantic retrieval, with additional expansion latency. The saved evaluation therefore does not demonstrate a retrieval or token-efficiency improvement. See `heldout_evaluation_report.md`, `aggregate_metrics.csv`, and `paired_bootstrap_ci.csv` in that directory.
+
+The 10,000-query evaluation is configured, but its raw result directory is not currently present. Figures under `paper/figures/10000_query/` should not be treated as independently reproducible results until the corresponding per-query data and experiment manifest are available. Answer faithfulness is not evaluated; the reported metrics assess retrieval evidence coverage and context precision.
 
 ## Requirements
 
@@ -23,7 +31,7 @@ If PowerShell blocks activation, set the execution policy for the current proces
 
 ## Repair an existing environment
 
-The pinned stack keeps NumPy 1.26.4 with PyArrow 18.1.0, Pandas 2.2.3, and scikit-learn 1.6.1. If a newer PyArrow was installed into the environment, repair just these numerical packages and install Pandas' timezone dependency:
+The pinned stack keeps NumPy 1.26.4 with PyArrow 18.1.0, Pandas 2.2.3, and scikit-learn 1.6.1. If a newer PyArrow was installed into the environment, repair these numerical packages and install Pandas' timezone dependency:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install --no-deps --force-reinstall numpy==1.26.4 pyarrow==18.1.0 pandas==2.2.3 scikit-learn==1.6.1
@@ -40,7 +48,7 @@ python -m query_adaptive_rag.pipeline --config configs/day1.yaml
 
 The first run downloads the configured validation splits and embedding model. Use `--limit 5` for a small end-to-end smoke run; the limit applies to each dataset. Dataset counts, model, seed, token boundaries, and semantic chunk size/threshold settings are in `configs/day1.yaml`. Outputs are written under `data/processed/day1/`: normalized records, one JSONL file for each chunking method, and `run_manifest.json` with the effective settings, dataset/chunk counts, dependency versions, timestamp, and command. Sentence embeddings are cached under `data/cache/sentence_embeddings/`.
 
-Each chunk record contains `doc_id`, stable-within-run `chunk_id`, `text`, `token_count`, character `start`/`end` offsets into its source document, `prev_chunk_id`, `next_chunk_id`, and `method`. A merged short semantic tail records its former ID in `merged_chunk_ids`. Offsets use Python Unicode character positions. Fixed chunkers use the configured Hugging Face tokenizer, 32-token overlap, and exact token offset mappings. Semantic chunking groups adjacent sentences using cosine similarity from L2-normalized `all-MiniLM-L6-v2` embeddings and respects the configured maximum token size. A final chunk below the configured minimum is merged with its predecessor when their combined size fits the maximum. A complete document shorter than the minimum, or a tail that would exceed the maximum if merged, remains below the minimum so no text is lost.
+Each chunk record contains `doc_id`, `chunk_id`, `text`, `token_count`, character `start`/`end` offsets into its source document, `prev_chunk_id`, `next_chunk_id`, and `method`. A merged short semantic tail records its former ID in `merged_chunk_ids`. Offsets use Python Unicode character positions. Fixed chunkers use the configured Hugging Face tokenizer, overlap, and token offset mappings. Semantic chunking groups adjacent sentences using cosine similarity from L2-normalized `all-MiniLM-L6-v2` embeddings and respects the configured maximum token size. A final chunk below the configured minimum is merged with its predecessor when their combined size fits the maximum. A complete document shorter than the minimum, or a tail that would exceed the maximum if merged, remains below the minimum so no text is lost.
 
 ## Tests
 
@@ -49,24 +57,18 @@ $env:PYTHONPATH = "$PWD\src"
 python -m pytest
 ```
 
-### GPU acceleration for the 10,000-query evaluation
+### Run the 10,000-query evaluation
 
-The held-out 10,000-query configuration requests CUDA. The Python environment
-must contain a CUDA-enabled PyTorch build; verify it before starting the run:
+The configuration `configs/day3_heldout_10000_m4v3.yaml` requests CUDA. For a CPU run, set `device: cpu` in a separate config and use separate output/cache paths. Verify CUDA availability before using the checked-in config:
 
 ```powershell
 .\.venv\Scripts\python.exe -c "import torch; print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CUDA unavailable')"
 ```
 
-If this prints `False`, install the CUDA-enabled PyTorch build appropriate for
-the installed NVIDIA driver from the official PyTorch selector. The existing
-CPU-generated preflight artifacts are not reusable after changing the
-configuration, so regenerate them before evaluation:
+If CUDA is unavailable, use a CPU-configured copy. Preflight the dataset and chunk inputs before starting the full evaluation:
 
 ```powershell
 $env:PYTHONPATH = "$PWD\src"
-Rename-Item data\processed\day3_heldout_10000_m4v3 day3_heldout_10000_m4v3_cpu
-Remove-Item data\cache\day3_heldout_10000_m4v3 -Recurse -Force -ErrorAction SilentlyContinue
 .\.venv\Scripts\python.exe -m query_adaptive_rag.evaluation.day3_heldout_10000_m4v3 --config configs\day3_heldout_10000_m4v3.yaml --preflight-only
 .\.venv\Scripts\python.exe -m query_adaptive_rag.evaluation.day3_heldout_10000_m4v3 --config configs\day3_heldout_10000_m4v3.yaml --run-evaluation
 ```
@@ -104,8 +106,19 @@ $env:PYTHONPATH = "$PWD\src"
 python -m query_adaptive_rag.evaluation.day3_dev_m4v3 --config configs/day3_dev_m4v3_fact.yaml
 ```
 
-Outputs go under `data/processed/day3_dev_m4v3_fact/` and `results/day3_dev_m4v3_fact/`; this implementation task does not run that evaluation.
+Outputs go under `data/processed/day3_dev_m4v3_fact/` and `results/day3_dev_m4v3_fact/`.
+
+## Held-out evaluation
+
+The available 400-query held-out run is reproduced with:
+
+```powershell
+$env:PYTHONPATH = "$PWD\src"
+python -m query_adaptive_rag.evaluation.day3_heldout_m4v3 --config configs/day3_heldout_m4v3_alias_fix.yaml
+```
+
+The run writes per-query and aggregate CSV/JSONL files, paired bootstrap intervals, candidate decision logs, plots, and an experiment manifest under the configured output directory. The manifest records the split identity, settings, artifact hashes, and runtime evidence controls. Do not use development results to support held-out claims.
 
 ## Reproducibility and scope
 
-The configuration seeds Python and NumPy and deterministically shuffles each selected dataset slice. Record the config and dependency versions with future experiment results. This pipeline only prepares data and chunks; retrieval indexing, adaptive context expansion, answer generation, and evaluation are later project stages.
+Evaluation runs record their configuration, dependency versions, data split, artifact hashes, and output paths in an experiment manifest. Keep each run's config and output directory together when sharing results. M2 is labeled fixed 510 because the encoder accepts a maximum sequence of 512 tokens and reserves two tokens for special tokens; it is not a 512-content-token chunk. Retrieval quality is measured with evidence-span Recall@K, MRR, and context precision. Faithfulness and generated-answer quality have not been evaluated.
